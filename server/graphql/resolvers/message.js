@@ -3,13 +3,13 @@ const { UserInputError, AuthenticationError } = require('apollo-server');
 
 const { Message, User } = require('../../models');
 
-const getMessages = async (_, { to }, { user }) => {
+const getConversation = async (_, { withUser }, { user }) => {
   if (!user) {
     throw new AuthenticationError('Unauthenticated');
   }
 
   try {
-    const users = [user.id, to];
+    const users = [user.id, withUser];
     const messages = await Message.findAll({
       where: {
         from: { [Op.in]: users },
@@ -34,7 +34,7 @@ const sendMessage = async (_, { content, to }, { user }) => {
     if (!content.trim().length) {
       throw new UserInputError('You cannot send an empty message');
     }
-    const recipient = await User.findOne({ where: { username: to } });
+    const recipient = await User.findOne({ where: { id: to } });
     if (!recipient) {
       throw new UserInputError('Unknown user');
     }
@@ -73,7 +73,7 @@ const reactToMessage = async (_, { messageId, reaction }, { user }) => {
 };
 
 module.exports = {
-  getMessages,
+  getConversation,
   sendMessage,
   reactToMessage,
 };

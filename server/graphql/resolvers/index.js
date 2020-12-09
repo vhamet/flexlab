@@ -1,13 +1,13 @@
-const { getUsers, signUp, login } = require('./user');
-const { getMessages, sendMessage, reactToMessage } = require('./message');
+const { getUsers, signup, login } = require('./user');
+const { getConversation, sendMessage, reactToMessage } = require('./message');
 
 module.exports = {
   Query: {
     getUsers,
-    getMessages,
+    getConversation,
   },
   Mutation: {
-    signUp,
+    signup,
     login,
     sendMessage,
     reactToMessage,

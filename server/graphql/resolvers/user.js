@@ -41,7 +41,7 @@ const getUsers = async (_, __, { user }) => {
   }
 };
 
-const signUp = async (_, { username, email, password, confirm }) => {
+const signup = async (_, { username, email, password, confirm }) => {
   try {
     const isInputInvalid = validateInput(username, email, password, confirm);
     if (isInputInvalid) {
@@ -108,6 +108,6 @@ const login = async (_, { username, password }) => {
 
 module.exports = {
   getUsers,
-  signUp,
+  signup,
   login,
 };

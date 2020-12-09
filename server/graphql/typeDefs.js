@@ -18,18 +18,18 @@ module.exports = gql`
 
   type Query {
     getUsers: [User]!
-    getMessages(to: Int!): [Message]!
+    getConversation(withUser: Int!): [Message]!
   }
 
   type Mutation {
-    signUp(
+    signup(
       username: String!
       email: String!
       password: String!
       confirm: String!
     ): User!
     login(username: String!, password: String!): User!
-    sendMessage(content: String!, to: String!): Message
+    sendMessage(content: String!, to: Int!): Message
     reactToMessage(messageId: Int!, reaction: String): Message!
   }
 `;
