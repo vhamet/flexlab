@@ -1,5 +1,10 @@
 const { getUsers, signup, login } = require('./user');
-const { getConversation, sendMessage, reactToMessage } = require('./message');
+const {
+  getConversation,
+  sendMessage,
+  reactToMessage,
+  newMessage,
+} = require('./message');
 
 module.exports = {
   Query: {
@@ -11,5 +16,8 @@ module.exports = {
     login,
     sendMessage,
     reactToMessage,
+  },
+  Subscription: {
+    newMessage,
   },
 };

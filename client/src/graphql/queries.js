@@ -59,3 +59,15 @@ export const SEND_MESSAGE_MUTATION = gql`
     }
   }
 `;
+
+export const NEW_MESSAGE_SUBSCRIPTION = gql`
+  subscription newMessage {
+    newMessage {
+      id
+      from
+      to
+      content
+      reaction
+    }
+  }
+`;

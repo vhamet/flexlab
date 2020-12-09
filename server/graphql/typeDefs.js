@@ -32,4 +32,8 @@ module.exports = gql`
     sendMessage(content: String!, to: Int!): Message
     reactToMessage(messageId: Int!, reaction: String): Message!
   }
+
+  type Subscription {
+    newMessage: Message!
+  }
 `;

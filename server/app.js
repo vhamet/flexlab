@@ -1,4 +1,4 @@
-const { ApolloServer } = require('apollo-server');
+const { ApolloServer, PubSub } = require('apollo-server');
 const jwt = require('jsonwebtoken');
 
 const typeDefs = require('./graphql/typeDefs');
@@ -7,19 +7,31 @@ const { sequelize } = require('./models');
 
 require('dotenv').config();
 
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async (context) => {
-    const authHeader = context.req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        console.log(err);
-      }
+    let token;
+    if (context.req && context.req.headers.authorization) {
+      const authHeader = context.req.headers.authorization;
+      token = authHeader && authHeader.split(' ')[1];
+    } else if (context.connection && context.connection.context.Authorization) {
+      const authConnection = context.connection.context;
+      token = authConnection && authConnection.Authorization.split(' ')[1];
+    }
 
-      context.user = user;
-    });
+    if (token) {
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) {
+          console.log(err);
+        }
+
+        context.user = user;
+      });
+    }
+    context.pubsub = pubsub;
 
     return context;
   },

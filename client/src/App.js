@@ -24,7 +24,7 @@ if (token) {
   }
 }
 
-function App() {
+const App = () => {
   const [state, dispatch] = useReducer(authenticationReducer, { user });
   const login = (user) => dispatch({ type: 'LOGIN', payload: user });
   const logout = () => dispatch({ type: 'LOGOUT' });
@@ -43,6 +43,6 @@ function App() {
       </div>
     </AuthenticationContext.Provider>
   );
-}
+};
 
 export default App;

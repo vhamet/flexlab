@@ -1,14 +1,21 @@
-import React, { useContext, useState } from 'react';
-import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
+import React, { useContext, useState, useEffect } from 'react';
+import {
+  useQuery,
+  useLazyQuery,
+  useMutation,
+  useSubscription,
+} from '@apollo/client';
 import { Redirect } from 'react-router-dom';
 
 import Contacts from '../../components/Contacts/Contacts';
 import Chat from '../../components/Chat/Chat';
 import AuthenticationContext from '../../authentication/authenticationContext';
+import { ApolloContext } from '../../apollo/Apollo';
 import {
   GET_USERS_QUERY,
   GET_CONVERSATION_QUERY,
   SEND_MESSAGE_MUTATION,
+  NEW_MESSAGE_SUBSCRIPTION,
 } from '../../graphql/queries';
 
 import './ChatApp.scss';
@@ -19,37 +26,52 @@ const ChatApp = () => {
   const {
     state: { user },
   } = useContext(AuthenticationContext);
+  const store = useContext(ApolloContext);
 
   const { loading, error, data, refetch } = useQuery(GET_USERS_QUERY);
-  const contacts = data && data.getUsers.filter((u) => u.id !== user.id);
 
   const [
     loadConversation,
-    { called, loading: loadingConversation, data: dataConversation },
+    { loading: loadingConversation, data: dataConversation },
   ] = useLazyQuery(GET_CONVERSATION_QUERY);
   const messages = dataConversation && dataConversation.getConversation;
 
   const [sendMessage, { loadingSendMessage, client }] = useMutation(
     SEND_MESSAGE_MUTATION,
     {
-      update: (cache, { data }) => {
-        const conversation = cache.readQuery({
-          query: GET_CONVERSATION_QUERY,
-          variables: { withUser: recipient },
-        });
-        const updatedConversation = {
-          getConversation: [...conversation.getConversation, data.sendMessage],
-        };
-        client.writeQuery({
-          query: GET_CONVERSATION_QUERY,
-          variables: { withUser: recipient },
-          data: updatedConversation,
-        });
+      update: () => {
         setMessage('');
       },
       onError: (err) => console.log(err.message),
     }
   );
+
+  const { data: messageData, error: messageError } = useSubscription(
+    NEW_MESSAGE_SUBSCRIPTION
+  );
+
+  useEffect(() => {
+    if (messageError) console.log(messageError);
+
+    if (messageData) {
+      console.log(messageData);
+      const conversation = store.readQuery({
+        query: GET_CONVERSATION_QUERY,
+        variables: { withUser: recipient },
+      });
+      const updatedConversation = {
+        getConversation: [
+          ...conversation.getConversation,
+          messageData.newMessage,
+        ],
+      };
+      store.writeQuery({
+        query: GET_CONVERSATION_QUERY,
+        variables: { withUser: recipient },
+        data: updatedConversation,
+      });
+    }
+  }, [messageError, messageData]);
 
   if (!user) {
     return <Redirect to="/login" />;
@@ -69,7 +91,7 @@ const ChatApp = () => {
       <Contacts
         error={error}
         loading={loading}
-        contacts={contacts}
+        contacts={data && data.getUsers.filter((u) => u.id !== user.id)}
         retry={refetch}
         selectConversation={selectConversation}
       />

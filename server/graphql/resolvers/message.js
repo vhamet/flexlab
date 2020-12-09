@@ -1,5 +1,9 @@
 const { Op } = require('sequelize');
-const { UserInputError, AuthenticationError } = require('apollo-server');
+const {
+  UserInputError,
+  AuthenticationError,
+  withFilter,
+} = require('apollo-server');
 
 const { Message, User } = require('../../models');
 
@@ -25,7 +29,7 @@ const getConversation = async (_, { withUser }, { user }) => {
   }
 };
 
-const sendMessage = async (_, { content, to }, { user }) => {
+const sendMessage = async (_, { content, to }, { user, pubsub }) => {
   if (!user) {
     throw new AuthenticationError('Unauthenticated');
   }
@@ -44,6 +48,8 @@ const sendMessage = async (_, { content, to }, { user }) => {
       from: user.id,
       to: recipient.id,
     });
+
+    pubsub.publish('NEW_MESSAGE', { newMessage: message });
 
     return message;
   } catch (err) {
@@ -72,8 +78,31 @@ const reactToMessage = async (_, { messageId, reaction }, { user }) => {
   }
 };
 
+const newMessage = {
+  subscribe: withFilter(
+    (_, __, { pubsub, user }) => {
+      if (!user) {
+        throw new AuthenticationError('Unauthenticated');
+      }
+
+      return pubsub.asyncIterator(['NEW_MESSAGE']);
+    },
+    (parent, _, { user }) => {
+      if (
+        parent.newMessage.from === user.id ||
+        parent.newMessage.to === user.id
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  ),
+};
+
 module.exports = {
   getConversation,
   sendMessage,
   reactToMessage,
+  newMessage,
 };
