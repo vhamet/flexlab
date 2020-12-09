@@ -1,10 +1,13 @@
+import jwtDecode from 'jwt-decode';
+
 const authenticationReducer = (state = { user: null }, action) => {
   switch (action.type) {
     case 'LOGIN':
       localStorage.setItem('token', action.payload.token);
+      const decodedToken = jwtDecode(action.payload.token);
       return {
         ...state,
-        user: action.payload,
+        user: decodedToken,
       };
     case 'LOGOUT':
       localStorage.removeItem('token');

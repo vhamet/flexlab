@@ -7,6 +7,8 @@ import FormInput from '../../components/FormInput/FormInput';
 import AuthenticationContext from '../../authentication/authenticationContext';
 import { SIGNUP_MUTATION } from '../../graphql/queries';
 
+import './Signup.scss';
+
 const Signup = ({ history }) => {
   const [variables, setVariables] = useState({
     username: '',
@@ -31,12 +33,13 @@ const Signup = ({ history }) => {
   const handleInputChange = (e, property) =>
     setVariables({ ...variables, [property]: e.target.value });
 
-  const submitSignup = () => {
+  const submitSignup = (e) => {
+    e.preventDefault();
     signup({ variables });
   };
 
   return (
-    <div className="signup">
+    <form className="signup">
       <h2>Sign Up !</h2>
       <FormInput
         label="Username"
@@ -63,7 +66,7 @@ const Signup = ({ history }) => {
         onChange={(e) => handleInputChange(e, 'password')}
       />
       <FormInput
-        label="Password confirmation"
+        label="Confirmation"
         name="confirmation"
         value={variables.confirmation}
         type="password"
@@ -73,13 +76,13 @@ const Signup = ({ history }) => {
 
       <p className="error">{error}</p>
 
-      <button onClick={submitSignup} disabled={loading}>
+      <button type="submit" onClick={submitSignup} disabled={loading}>
         {loading ? 'Loading...' : 'Sign up'}
       </button>
       <p>
         Already registered ? <Link to="/login">Log in</Link>.
       </p>
-    </div>
+    </form>
   );
 };
 

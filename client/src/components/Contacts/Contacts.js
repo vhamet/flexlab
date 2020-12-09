@@ -1,7 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Contacts = ({ loading, error, contacts, retry, selectConversation }) => {
+import './Contacts.scss';
+
+const Contacts = ({
+  loading,
+  error,
+  contacts,
+  retry,
+  selectConversation,
+  currentContact,
+  notifications,
+}) => {
   let content;
   if (error) {
     content = (
@@ -15,10 +25,13 @@ const Contacts = ({ loading, error, contacts, retry, selectConversation }) => {
     content = contacts.map((contact) => (
       <div
         key={contact.id}
-        className="contact"
+        className={`contact${currentContact === contact.id ? ' selected' : ''}`}
         onClick={selectConversation.bind(null, contact.id)}
       >
         {contact.username}
+        {notifications.includes(contact.id) && (
+          <span className="alert">🔴</span>
+        )}
       </div>
     ));
   }
@@ -41,6 +54,8 @@ Contacts.propTypes = {
   ),
   retry: PropTypes.func,
   selectConversation: PropTypes.func,
+  currentContact: PropTypes.number,
+  notifications: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default Contacts;

@@ -7,6 +7,8 @@ import FormInput from '../../components/FormInput/FormInput';
 import AuthenticationContext from '../../authentication/authenticationContext';
 import { LOGIN_MUTATION } from '../../graphql/queries';
 
+import './Login.scss';
+
 const Login = ({ history }) => {
   const [variables, setVariables] = useState({
     username: '',
@@ -33,12 +35,13 @@ const Login = ({ history }) => {
   const handleInputChange = (e, property) =>
     setVariables({ ...variables, [property]: e.target.value });
 
-  const submitLogin = () => {
+  const submitLogin = (e) => {
+    e.preventDefault();
     login({ variables });
   };
 
   return (
-    <div className="login">
+    <form className="login">
       <h2>Log in !</h2>
       <FormInput
         label="Username"
@@ -59,13 +62,13 @@ const Login = ({ history }) => {
 
       <p className="error">{error}</p>
 
-      <button onClick={submitLogin} disabled={loading}>
+      <button type="submit" onClick={submitLogin} disabled={loading}>
         {loading ? 'Loading...' : 'Log in'}
       </button>
       <p>
         Not signed up yet ? <Link to="/signup">Sign up</Link>.
       </p>
-    </div>
+    </form>
   );
 };
 

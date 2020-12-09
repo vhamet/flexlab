@@ -13,13 +13,13 @@ const Header = () => {
 
   return (
     <header className="header">
-      <div />
+      <div className="filler" />
       <Link to="/">
         <h1>Flexlab Chat</h1>
       </Link>
       <div className="authentication-links">
         {user ? (
-          <label onClick={logout}>Log out</label>
+          <label onClick={logout}>Logout</label>
         ) : (
           <>
             <Link to="/login">Login</Link>

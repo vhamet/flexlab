@@ -3,19 +3,29 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px;
+    background: #005fc7;
+    box-shadow: 0 4px 5px -2px #0155af;
 
     a {
         text-decoration: none;
+        color: white;
     }
 
     h1 {
         flex: 1;
+        margin: 0;
+    }
+
+    .filler {
+        min-width: 10%;
     }
 
 
     .authentication-links {
         label, a {
             margin-right: 10px;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
         }
     }

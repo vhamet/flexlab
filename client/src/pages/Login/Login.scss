@@ -1,0 +1,22 @@
+.login {
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 250px;
+    padding: 20px;
+    background: white;
+
+    h2, a {
+        color: #005fc7;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .error {
+        color: #B20000;
+    }
+}

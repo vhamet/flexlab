@@ -1,0 +1,33 @@
+.contacts {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-right: 1px solid #4d8dd1;
+
+    h3 {
+        color: #005fc7;
+    }
+
+    .content {
+        overflow: auto;
+        padding: 0 30px;
+    }
+
+    .contact {
+        display:flex;
+        align-items: center;
+        padding: 8px 5px;
+        cursor: pointer;
+    
+        &.selected, &:hover {
+            color:#005fc7;
+        }
+
+        .alert {
+            margin-left: 2px;
+            font-size: 6px;
+        }
+    }
+}

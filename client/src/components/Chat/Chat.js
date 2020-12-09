@@ -1,18 +1,52 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Chat = ({ messages, message, onMessageInput, sendMessage }) => {
+import './Chat.scss';
+
+const Chat = ({
+  messages,
+  message,
+  onMessageInput,
+  sendMessage,
+  scrollBottomRef,
+  disabled,
+}) => {
+  const submitMessage = (e) => {
+    e.preventDefault();
+    sendMessage();
+  };
+
   return (
     <div className="chat">
-      {messages &&
-        messages.map(({ id, content, reaction }) => (
-          <div key={id}>
-            {content}
-            {reaction}
-          </div>
-        ))}
-      <input type="text" value={message} onChange={onMessageInput} />
-      <label onClick={sendMessage}>📨</label>
+      <div className="messages">
+        {messages &&
+          messages.map(({ id, content, reaction, received }) => (
+            <div
+              key={id}
+              className={`message ${received ? 'received' : 'sent'}`}
+            >
+              {content}
+              {reaction}
+            </div>
+          ))}
+        <div ref={scrollBottomRef} />
+      </div>
+      <form className="message-input">
+        <input
+          type="text"
+          value={message}
+          onChange={onMessageInput}
+          placeholder="Send message"
+          disabled={disabled}
+        />
+        <button
+          type="submit"
+          onClick={submitMessage}
+          disabled={!message || disabled}
+        >
+          ✉️
+        </button>
+      </form>
     </div>
   );
 };
@@ -30,6 +64,11 @@ Chat.propTypes = {
   message: PropTypes.string,
   onMessageInput: PropTypes.func.isRequired,
   sendMessage: PropTypes.func.isRequired,
+  scrollBottomRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+  disabled: PropTypes.bool,
 };
 
 export default Chat;

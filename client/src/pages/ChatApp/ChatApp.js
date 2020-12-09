@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import {
   useQuery,
   useLazyQuery,
@@ -21,7 +21,9 @@ import {
 import './ChatApp.scss';
 
 const ChatApp = () => {
+  const scrollBottomRef = useRef(null);
   const [message, setMessage] = useState('');
+  const [notifications, setNotifications] = useState([]);
   const [recipient, setRecipient] = useState();
   const {
     state: { user },
@@ -34,7 +36,6 @@ const ChatApp = () => {
     loadConversation,
     { loading: loadingConversation, data: dataConversation },
   ] = useLazyQuery(GET_CONVERSATION_QUERY);
-  const messages = dataConversation && dataConversation.getConversation;
 
   const [sendMessage, { loadingSendMessage, client }] = useMutation(
     SEND_MESSAGE_MUTATION,
@@ -51,13 +52,24 @@ const ChatApp = () => {
   );
 
   useEffect(() => {
+    scrollBottomRef &&
+      scrollBottomRef.current.scrollIntoView({
+        behavior: 'instant',
+        block: 'end',
+      });
+  }, [dataConversation]);
+
+  useEffect(() => {
     if (messageError) console.log(messageError);
 
     if (messageData) {
-      console.log(messageData);
+      const withUser =
+        messageData.newMessage.from === user.id
+          ? messageData.newMessage.to
+          : messageData.newMessage.from;
       const conversation = store.readQuery({
         query: GET_CONVERSATION_QUERY,
-        variables: { withUser: recipient },
+        variables: { withUser },
       });
       const updatedConversation = {
         getConversation: [
@@ -67,9 +79,21 @@ const ChatApp = () => {
       };
       store.writeQuery({
         query: GET_CONVERSATION_QUERY,
-        variables: { withUser: recipient },
+        variables: { withUser },
         data: updatedConversation,
       });
+      scrollBottomRef &&
+        scrollBottomRef.current.scrollIntoView({
+          behavior: 'instant',
+          block: 'end',
+        });
+
+      if (
+        recipient !== messageData.newMessage.from &&
+        recipient !== messageData.newMessage.to
+      ) {
+        setNotifications((n) => [...n, messageData.newMessage.from]);
+      }
     }
   }, [messageError, messageData]);
 
@@ -77,7 +101,16 @@ const ChatApp = () => {
     return <Redirect to="/login" />;
   }
 
+  const contacts = data && data.getUsers.filter(({ id }) => id !== user.id);
+  const messages =
+    dataConversation &&
+    dataConversation.getConversation.map((message) => ({
+      ...message,
+      received: message.from !== user.id,
+    }));
+
   const selectConversation = (userId) => {
+    setNotifications((ns) => ns.filter((n) => n !== userId));
     setRecipient(userId);
     loadConversation({ variables: { withUser: userId } });
   };
@@ -91,9 +124,11 @@ const ChatApp = () => {
       <Contacts
         error={error}
         loading={loading}
-        contacts={data && data.getUsers.filter((u) => u.id !== user.id)}
+        contacts={contacts}
         retry={refetch}
         selectConversation={selectConversation}
+        currentContact={recipient}
+        notifications={notifications}
       />
       <Chat
         messages={messages}
@@ -102,6 +137,8 @@ const ChatApp = () => {
         sendMessage={() =>
           sendMessage({ variables: { content: message, to: recipient } })
         }
+        scrollBottomRef={scrollBottomRef}
+        disabled={!recipient}
       />
     </div>
   );

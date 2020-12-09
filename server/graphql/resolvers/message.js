@@ -19,7 +19,7 @@ const getConversation = async (_, { withUser }, { user }) => {
         from: { [Op.in]: users },
         to: { [Op.in]: users },
       },
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'ASC']],
     });
 
     return messages;
