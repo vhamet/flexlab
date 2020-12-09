@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 
-const UserModel = require('./user');
+const UserModel = require('./User');
+const MessageModel = require('./Message');
 
 const sequelize = new Sequelize(
   'flexlab_chat',
@@ -13,5 +14,6 @@ const sequelize = new Sequelize(
 );
 
 const User = UserModel(sequelize, Sequelize);
+const Message = MessageModel(sequelize, Sequelize, User);
 
-module.exports = { sequelize, User };
+module.exports = { sequelize, User, Message };
