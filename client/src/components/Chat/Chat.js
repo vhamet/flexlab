@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Message from './Message/Message';
@@ -7,16 +7,21 @@ import './Chat.scss';
 
 const Chat = ({
   messages,
-  message,
-  onMessageInput,
   sendMessage,
   reactToMessage,
   scrollBottomRef,
   disabled,
 }) => {
+  const [message, setMessage] = useState('');
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+  };
+
   const submitMessage = (e) => {
     e.preventDefault();
-    sendMessage();
+    sendMessage(message);
+    setMessage('');
   };
 
   return (
@@ -39,7 +44,7 @@ const Chat = ({
         <input
           type="text"
           value={message}
-          onChange={onMessageInput}
+          onChange={handleMessageChange}
           placeholder="Send message"
           disabled={disabled}
         />
@@ -65,8 +70,6 @@ Chat.propTypes = {
       reaction: PropTypes.string,
     })
   ),
-  message: PropTypes.string,
-  onMessageInput: PropTypes.func.isRequired,
   sendMessage: PropTypes.func.isRequired,
   reactToMessage: PropTypes.func.isRequired,
   scrollBottomRef: PropTypes.oneOfType([

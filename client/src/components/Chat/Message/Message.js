@@ -48,4 +48,4 @@ Message.propTypes = {
   onReaction: PropTypes.func.isRequired,
 };
 
-export default Message;
+export default React.memo(Message);

@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Contact from './Contact';
+
 import './Contacts.scss';
 
 const Contacts = ({
@@ -12,6 +14,10 @@ const Contacts = ({
   currentContact,
   notifications,
 }) => {
+  const handleSelection = (contact) => {
+    selectConversation(contact);
+  };
+
   let content;
   if (error) {
     content = (
@@ -22,17 +28,15 @@ const Contacts = ({
   } else if (loading) {
     content = <label>Loading...</label>;
   } else if (contacts) {
-    content = contacts.map((contact) => (
-      <div
-        key={contact.id}
-        className={`contact${currentContact === contact.id ? ' selected' : ''}`}
-        onClick={selectConversation.bind(null, contact.id)}
-      >
-        {contact.username}
-        {notifications.includes(contact.id) && (
-          <span className="alert">🔴</span>
-        )}
-      </div>
+    content = contacts.map(({ id, username }) => (
+      <Contact
+        key={id}
+        id={id}
+        username={username}
+        selected={currentContact === id}
+        withNotification={notifications.includes(id)}
+        onClick={() => handleSelection(id)}
+      />
     ));
   }
   return (

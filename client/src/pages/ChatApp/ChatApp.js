@@ -11,103 +11,53 @@ import Contacts from '../../components/Contacts/Contacts';
 import Chat from '../../components/Chat/Chat';
 import AuthenticationContext from '../../authentication/authenticationContext';
 import useAuthenticationChecker from '../../authentication/useAuthenticationChecker';
-import { ApolloContext } from '../../apollo/Apollo';
 import {
   GET_USERS_QUERY,
   GET_CONVERSATION_QUERY,
   SEND_MESSAGE_MUTATION,
-  NEW_MESSAGE_SUBSCRIPTION,
   REACT_TO_MESSAGE_MUTATION,
   NEW_REACTION_SUBSCRIPTION,
 } from '../../graphql/queries';
 
 import './ChatApp.scss';
+import useNewMessage from './useNewMessage';
 
 const ChatApp = () => {
   useAuthenticationChecker();
-  const scrollBottomRef = useRef(null);
-  const [message, setMessage] = useState('');
   const [notifications, setNotifications] = useState([]);
-  const [recipient, setRecipient] = useState();
   const {
     state: { user },
   } = useContext(AuthenticationContext);
-  const store = useContext(ApolloContext);
 
   const { loading, error, data, refetch } = useQuery(GET_USERS_QUERY);
 
-  const [
-    loadConversation,
-    { loading: loadingConversation, data: dataConversation },
-  ] = useLazyQuery(GET_CONVERSATION_QUERY);
-
-  const [sendMessage, { loadingSendMessage }] = useMutation(
-    SEND_MESSAGE_MUTATION,
-    {
-      update: () => {
-        setMessage('');
-      },
-      onError: (err) => console.log(err.message),
-    }
+  const [loadConversation, { data: dataConversation }] = useLazyQuery(
+    GET_CONVERSATION_QUERY
   );
+
+  const scrollBottomRef = useRef(null);
+  const scrollToBottom = () =>
+    scrollBottomRef.current &&
+    scrollBottomRef.current.scrollIntoView({
+      behavior: 'instant',
+      block: 'end',
+    });
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [dataConversation]);
+
+  const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION, {
+    onError: (err) => console.log(err.message),
+  });
 
   const [reactToMessage] = useMutation(REACT_TO_MESSAGE_MUTATION, {
     onError: (err) => console.log(err.message),
   });
 
-  useEffect(() => {
-    scrollBottomRef.current &&
-      scrollBottomRef.current.scrollIntoView({
-        behavior: 'instant',
-        block: 'end',
-      });
-  }, [dataConversation]);
-
-  const { data: messageData, error: messageError } = useSubscription(
-    NEW_MESSAGE_SUBSCRIPTION
-  );
-
-  useEffect(() => {
-    if (messageError) console.log(messageError);
-
-    if (messageData) {
-      const withUser =
-        messageData.newMessage.from === user.id
-          ? messageData.newMessage.to
-          : messageData.newMessage.from;
-      const conversation = store.readQuery({
-        query: GET_CONVERSATION_QUERY,
-        variables: { withUser },
-      });
-      const updatedConversation = {
-        getConversation: [
-          ...conversation.getConversation,
-          messageData.newMessage,
-        ],
-      };
-      store.writeQuery({
-        query: GET_CONVERSATION_QUERY,
-        variables: { withUser },
-        data: updatedConversation,
-      });
-      scrollBottomRef.current &&
-        scrollBottomRef.current.scrollIntoView({
-          behavior: 'instant',
-          block: 'end',
-        });
-
-      if (
-        recipient !== messageData.newMessage.from &&
-        recipient !== messageData.newMessage.to
-      ) {
-        setNotifications((n) => [...n, messageData.newMessage.from]);
-      }
-    }
-  }, [messageError, messageData]);
-
-  const { data: reactionData, error: reactionError } = useSubscription(
-    NEW_REACTION_SUBSCRIPTION
-  );
+  const [recipient, setRecipient] = useState();
+  useNewMessage(recipient, setNotifications, scrollToBottom);
+  useSubscription(NEW_REACTION_SUBSCRIPTION);
 
   if (!user) {
     return <Redirect to="/login" />;
@@ -127,8 +77,8 @@ const ChatApp = () => {
     loadConversation({ variables: { withUser: userId } });
   };
 
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
+  const handleSendMessage = (message) => {
+    sendMessage({ variables: { content: message, to: recipient } });
   };
 
   return (
@@ -144,11 +94,7 @@ const ChatApp = () => {
       />
       <Chat
         messages={messages}
-        message={message}
-        onMessageInput={handleMessageChange}
-        sendMessage={() =>
-          sendMessage({ variables: { content: message, to: recipient } })
-        }
+        sendMessage={handleSendMessage}
         reactToMessage={reactToMessage}
         scrollBottomRef={scrollBottomRef}
         disabled={!recipient}
