@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Message from './Message/Message';
+
 import './Chat.scss';
 
 const Chat = ({
@@ -8,6 +10,7 @@ const Chat = ({
   message,
   onMessageInput,
   sendMessage,
+  reactToMessage,
   scrollBottomRef,
   disabled,
 }) => {
@@ -21,13 +24,14 @@ const Chat = ({
       <div className="messages">
         {messages &&
           messages.map(({ id, content, reaction, received }) => (
-            <div
+            <Message
               key={id}
-              className={`message ${received ? 'received' : 'sent'}`}
-            >
-              {content}
-              {reaction}
-            </div>
+              id={id}
+              content={content}
+              reaction={reaction}
+              received={received}
+              onReaction={reactToMessage}
+            />
           ))}
         <div ref={scrollBottomRef} />
       </div>
@@ -64,6 +68,7 @@ Chat.propTypes = {
   message: PropTypes.string,
   onMessageInput: PropTypes.func.isRequired,
   sendMessage: PropTypes.func.isRequired,
+  reactToMessage: PropTypes.func.isRequired,
   scrollBottomRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),

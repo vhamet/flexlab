@@ -32,7 +32,7 @@ const getUsers = async (_, __, { user }) => {
   }
 
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({ order: [['username', 'ASC']] });
 
     return users;
   } catch (err) {

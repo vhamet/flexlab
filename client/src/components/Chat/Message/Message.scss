@@ -1,0 +1,47 @@
+.message {
+    margin-bottom: 15px;
+
+    .content {
+      max-width: 80%;
+      padding: 5px 10px;
+      border-radius: 15px;
+    }
+
+    &.received {
+      align-self: flex-start;
+      .content {
+        background: #d8d8d8;
+      }
+    }
+
+    &.sent {
+      align-self: flex-end;
+      .content {
+        background: #aec8e4;
+      }
+    }
+
+    .react {
+        display: none;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    .reaction {
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    &:hover {
+        .react, .reactions {
+            display: inline;
+        }
+    }
+
+    .reactions {
+        display: none;
+        .emoji {
+            margin-left: 2px;
+        }
+    }
+  }

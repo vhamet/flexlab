@@ -58,7 +58,7 @@ const sendMessage = async (_, { content, to }, { user, pubsub }) => {
   }
 };
 
-const reactToMessage = async (_, { messageId, reaction }, { user }) => {
+const reactToMessage = async (_, { messageId, reaction }, { user, pubsub }) => {
   if (!user) {
     throw new AuthenticationError('Unauthenticated');
   }
@@ -70,6 +70,8 @@ const reactToMessage = async (_, { messageId, reaction }, { user }) => {
     }
 
     await message.update({ reaction });
+
+    pubsub.publish('NEW_REACTION', { newReaction: message.toJSON() });
 
     return message;
   } catch (err) {
@@ -85,7 +87,7 @@ const newMessage = {
         throw new AuthenticationError('Unauthenticated');
       }
 
-      return pubsub.asyncIterator(['NEW_MESSAGE']);
+      return pubsub.asyncIterator('NEW_MESSAGE');
     },
     (parent, _, { user }) => {
       if (
@@ -100,9 +102,32 @@ const newMessage = {
   ),
 };
 
+const newReaction = {
+  subscribe: withFilter(
+    (_, __, { pubsub, user }) => {
+      if (!user) {
+        throw new AuthenticationError('Unauthenticated');
+      }
+
+      return pubsub.asyncIterator('NEW_REACTION');
+    },
+    (parent, _, { user }) => {
+      if (
+        parent.newReaction.from === user.id ||
+        parent.newReaction.to === user.id
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  ),
+};
+
 module.exports = {
   getConversation,
   sendMessage,
   reactToMessage,
   newMessage,
+  newReaction,
 };

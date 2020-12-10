@@ -10,17 +10,21 @@ import { Redirect } from 'react-router-dom';
 import Contacts from '../../components/Contacts/Contacts';
 import Chat from '../../components/Chat/Chat';
 import AuthenticationContext from '../../authentication/authenticationContext';
+import useAuthenticationChecker from '../../authentication/useAuthenticationChecker';
 import { ApolloContext } from '../../apollo/Apollo';
 import {
   GET_USERS_QUERY,
   GET_CONVERSATION_QUERY,
   SEND_MESSAGE_MUTATION,
   NEW_MESSAGE_SUBSCRIPTION,
+  REACT_TO_MESSAGE_MUTATION,
+  NEW_REACTION_SUBSCRIPTION,
 } from '../../graphql/queries';
 
 import './ChatApp.scss';
 
 const ChatApp = () => {
+  useAuthenticationChecker();
   const scrollBottomRef = useRef(null);
   const [message, setMessage] = useState('');
   const [notifications, setNotifications] = useState([]);
@@ -37,7 +41,7 @@ const ChatApp = () => {
     { loading: loadingConversation, data: dataConversation },
   ] = useLazyQuery(GET_CONVERSATION_QUERY);
 
-  const [sendMessage, { loadingSendMessage, client }] = useMutation(
+  const [sendMessage, { loadingSendMessage }] = useMutation(
     SEND_MESSAGE_MUTATION,
     {
       update: () => {
@@ -47,17 +51,21 @@ const ChatApp = () => {
     }
   );
 
-  const { data: messageData, error: messageError } = useSubscription(
-    NEW_MESSAGE_SUBSCRIPTION
-  );
+  const [reactToMessage] = useMutation(REACT_TO_MESSAGE_MUTATION, {
+    onError: (err) => console.log(err.message),
+  });
 
   useEffect(() => {
-    scrollBottomRef &&
+    scrollBottomRef.current &&
       scrollBottomRef.current.scrollIntoView({
         behavior: 'instant',
         block: 'end',
       });
   }, [dataConversation]);
+
+  const { data: messageData, error: messageError } = useSubscription(
+    NEW_MESSAGE_SUBSCRIPTION
+  );
 
   useEffect(() => {
     if (messageError) console.log(messageError);
@@ -82,7 +90,7 @@ const ChatApp = () => {
         variables: { withUser },
         data: updatedConversation,
       });
-      scrollBottomRef &&
+      scrollBottomRef.current &&
         scrollBottomRef.current.scrollIntoView({
           behavior: 'instant',
           block: 'end',
@@ -96,6 +104,10 @@ const ChatApp = () => {
       }
     }
   }, [messageError, messageData]);
+
+  const { data: reactionData, error: reactionError } = useSubscription(
+    NEW_REACTION_SUBSCRIPTION
+  );
 
   if (!user) {
     return <Redirect to="/login" />;
@@ -137,6 +149,7 @@ const ChatApp = () => {
         sendMessage={() =>
           sendMessage({ variables: { content: message, to: recipient } })
         }
+        reactToMessage={reactToMessage}
         scrollBottomRef={scrollBottomRef}
         disabled={!recipient}
       />

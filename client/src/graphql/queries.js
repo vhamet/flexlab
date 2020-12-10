@@ -71,3 +71,21 @@ export const NEW_MESSAGE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const REACT_TO_MESSAGE_MUTATION = gql`
+  mutation reactToMessage($messageId: Int!, $reaction: String!) {
+    reactToMessage(messageId: $messageId, reaction: $reaction) {
+      id
+      reaction
+    }
+  }
+`;
+
+export const NEW_REACTION_SUBSCRIPTION = gql`
+  subscription newReaction {
+    newReaction {
+      id
+      reaction
+    }
+  }
+`;

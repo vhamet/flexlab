@@ -1,63 +1,48 @@
 .chat {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+
+  .messages {
+    height: 100%;
+    width: 300px;
+    padding: 10px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    margin: 10px 0;
+    background: #f5f4f4;
+  }
 
-    .messages {
-        height: 100%;
-        width: 300px;
-        padding: 10px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        background: #f5f4f4;
+  .message-input {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+
+    input {
+      flex: 1;
+      margin-right: 15px;
+      border-bottom-color: #005fc7;
+      background: white;
+
+      &:disabled {
+        border-bottom-color: #cccccc;
+        cursor: not-allowed;
+      }
     }
 
-    .message {
-        max-width: 80%;
-        margin-bottom: 5px;
-        padding: 5px 10px;
-        border-radius: 15px;
+    button {
+      padding: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 30px;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
     }
-
-    .received {
-        align-self: flex-start;
-        background:  #d8d8d8;
-    }
-
-    .sent {
-        align-self: flex-end;
-        background:  #aec8e4;
-    }
-
-    .message-input {
-        margin-top: auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0 5px;
-    
-        input {
-            flex: 1;
-            border-bottom-color: #005fc7;
-            background: white;
-
-            &:disabled {
-                border-bottom-color: #cccccc;
-                cursor: not-allowed;
-            }
-        }
-    
-        button {
-            border: none;
-            outline: none;
-            background: transparent;
-            font-size: 30px;
-            cursor: pointer;
-
-            &:disabled {
-                cursor: not-allowed;
-            }
-        }
-    }
+  }
 }

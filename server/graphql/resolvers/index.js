@@ -4,6 +4,7 @@ const {
   sendMessage,
   reactToMessage,
   newMessage,
+  newReaction,
 } = require('./message');
 
 module.exports = {
@@ -19,5 +20,6 @@ module.exports = {
   },
   Subscription: {
     newMessage,
+    newReaction,
   },
 };

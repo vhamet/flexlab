@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useContext } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 
@@ -6,6 +6,7 @@ import Header from './components/Header/Header';
 import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import ChatApp from './pages/ChatApp/ChatApp';
+import { ApolloContext } from './apollo/Apollo';
 import AuthenticationContext from './authentication/authenticationContext';
 import authenticationReducer from './authentication/authenticationReducer';
 
@@ -25,9 +26,13 @@ if (token) {
 }
 
 const App = () => {
+  const store = useContext(ApolloContext);
   const [state, dispatch] = useReducer(authenticationReducer, { user });
   const login = (user) => dispatch({ type: 'LOGIN', payload: user });
-  const logout = () => dispatch({ type: 'LOGOUT' });
+  const logout = () => {
+    dispatch({ type: 'LOGOUT' });
+    store.cache.reset();
+  };
 
   return (
     <AuthenticationContext.Provider value={{ state, login, logout }}>
