@@ -17,7 +17,5 @@ module.exports = (sequelize, DataTypes, User) => {
   Message.belongsTo(User, { foreignKey: 'from', as: 'FromUser' });
   Message.belongsTo(User, { foreignKey: 'to', as: 'ToUser' });
 
-  Message.sync({ alter: true });
-
   return Message;
 };

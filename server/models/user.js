@@ -27,7 +27,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.sync({ alter: true });
-
   return User;
 };
