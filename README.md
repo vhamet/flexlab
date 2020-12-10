@@ -7,6 +7,7 @@ Se placer à la racine et exécuter la commande suivante.
 ```python
 docker-compose up
 ```
+Le chat sera accessible sur http://localhost:3000/
 
 ## Code structure
 Le code est séparé en deux parties: 
